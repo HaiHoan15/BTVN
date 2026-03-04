@@ -39,6 +39,13 @@ class CartController
     {
         $product = $this->productModel->getProductById($id);
 
+        $qty = isset($_GET['qty']) ? (int) $_GET['qty'] : 1;
+
+        if ($qty < 1)
+            $qty = 1;
+        if ($qty > 999)
+            $qty = 999;
+
         if (!$product) {
             echo json_encode(['status' => 'error']);
             exit();
@@ -49,13 +56,13 @@ class CartController
         }
 
         if (isset($_SESSION['cart'][$id])) {
-            $_SESSION['cart'][$id]['quantity']++;
+            $_SESSION['cart'][$id]['quantity'] += $qty;
         } else {
             $_SESSION['cart'][$id] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
-                'quantity' => 1
+                'quantity' => $qty
             ];
         }
 

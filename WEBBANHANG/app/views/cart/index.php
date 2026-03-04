@@ -1,6 +1,24 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<h1 class="mb-4">Giỏ Hàng</h1>
+<style>
+    body {
+        background: url('/webbanhang/public/images/background/cart-background-4.avif') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+    }
+    /* tiêu đề */
+    .product-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: #facc15;
+        text-shadow:
+            0 2px 10px rgba(0, 0, 0, 0.6),
+            0 0 15px rgba(250, 204, 21, 0.6);
+        letter-spacing: 1px;
+    }
+</style>
+
+<h1 class="product-title mb-3">Giỏ Hàng Của Bạn</h1>
 
 <?php if (empty($cart)): ?>
     <div class="alert alert-info">

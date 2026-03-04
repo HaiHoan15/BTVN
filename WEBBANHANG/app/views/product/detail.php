@@ -1,11 +1,12 @@
 <?php include 'app/views/shares/header.php'; ?>
 
 <style>
-    /* body {
-        background: url('/webbanhang/public/images/background/background-1.avif') no-repeat center center fixed;
+    body {
+        /* background: url('/webbanhang/public/images/background/background-1.avif') no-repeat center center fixed; */
         background-size: cover;
+        background-color: azure;
         min-height: 100vh;
-    } */
+    }
 </style>
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb">
@@ -19,7 +20,9 @@
         </li>
 
         <li class="breadcrumb-item">
-            <?= $product->category_name ?? 'Chưa có danh mục' ?>
+            <a href="/webbanhang/Product/index?category=<?= urlencode($product->category_name) ?>">
+                <?= $product->category_name ?? 'Chưa có danh mục' ?>
+            </a>
         </li>
 
         <li class="breadcrumb-item active" aria-current="page">
@@ -62,9 +65,37 @@
 
             <p><strong>Màu sắc:</strong> <?= $product->color ?></p>
 
-            <p class="fs-4 text-danger fw-bold">
-                <?= number_format($product->price, 0, ',', '.') ?> VNĐ
-            </p>
+            <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+
+                <div>
+
+                    <strong>Số lượng</strong>
+
+                    <div class="input-group mt-2" style="width:140px;">
+
+                        <button class="btn btn-outline-secondary" id="minusBtn">−</button>
+
+                        <input type="number" id="quantity" class="form-control text-center" value="1" min="1" max="999">
+
+                        <button class="btn btn-outline-secondary" id="plusBtn">+</button>
+
+                    </div>
+
+                </div>
+
+                <div class="text-end">
+
+                    <strong>Thành tiền</strong>
+
+                    <div class="fs-3 fw-bold text-danger" id="totalPrice">
+
+                        <?= number_format($product->price, 0, ',', '.') ?>đ
+
+                    </div>
+
+                </div>
+
+            </div>
 
             <hr>
 
@@ -77,7 +108,8 @@
                     Quay lại
                 </a>
 
-                <button class="btn btn-success add-to-cart-btn" data-id="<?= $product->id ?>">
+                <button class="btn btn-success add-to-cart-btn" data-id="<?= $product->id ?>"
+                    data-price="<?= $product->price ?>">
                     Thêm vào giỏ hàng
                 </button>
 
@@ -89,11 +121,51 @@
 
 <!-- JS thêm vào giỏ -->
 <script>
+    const quantityInput = document.getElementById("quantity");
+    const minusBtn = document.getElementById("minusBtn");
+    const plusBtn = document.getElementById("plusBtn");
+    const totalPrice = document.getElementById("totalPrice");
+
+    const price = <?= $product->price ?>;
+
+    function updateTotal() {
+
+        const qty = parseInt(quantityInput.value);
+
+        const total = qty * price;
+
+        totalPrice.innerText = total.toLocaleString('vi-VN') + "đ";
+    }
+
+    minusBtn.onclick = function () {
+
+        let qty = parseInt(quantityInput.value);
+
+        if (qty > 1) {
+            qty--;
+            quantityInput.value = qty;
+            updateTotal();
+        }
+
+    }
+
+    plusBtn.onclick = function () {
+
+        let qty = parseInt(quantityInput.value);
+
+        qty++;
+
+        quantityInput.value = qty;
+
+        updateTotal();
+    }
+
     document.querySelector(".add-to-cart-btn")?.addEventListener("click", function () {
 
         const productId = this.getAttribute("data-id");
+        const qty = document.getElementById("quantity").value;
 
-        fetch("/webbanhang/Cart/add/" + productId)
+        fetch("/webbanhang/Cart/add/" + productId + "?qty=" + qty)
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
@@ -105,6 +177,21 @@
                     }, 1000);
                 }
             });
+
+    });
+
+    // giới hạn số lượng nhập vào ô input
+    quantityInput.addEventListener("input", function () {
+
+        let qty = parseInt(this.value);
+
+        if (isNaN(qty) || qty < 1) qty = 1;
+
+        if (qty > 999) qty = 999;
+
+        this.value = qty;
+
+        updateTotal();
 
     });
 </script>

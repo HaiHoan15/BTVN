@@ -15,6 +15,7 @@
             <tr>
                 <th>Mã đơn</th>
                 <th>Tổng tiền</th>
+                <th>Phương thức thanh toán</th>
                 <th>Trạng thái</th>
                 <th>Ngày tạo</th>
                 <th>Chi tiết</th>
@@ -29,6 +30,20 @@
 
                     <td class="text-danger fw-bold">
                         <?= number_format($order->total_amount, 0, ',', '.') ?> VNĐ
+                    </td>
+
+                    <td>
+                        <?php
+                            $method = ucfirst($order->payment_method);
+                            $note = '';
+                            if ($order->payment_method === 'cod') {
+                                $note = ' <span class="text-secondary">(Trực tiếp)</span>';
+                            } elseif ($order->payment_method === 'momo') {
+                                $note = ' <span class="text-secondary">(Online)</span>';
+                            }
+                            echo $method . $note;
+                        ?>
+                        
                     </td>
 
                     <td>

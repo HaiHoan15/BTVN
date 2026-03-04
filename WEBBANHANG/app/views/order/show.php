@@ -5,6 +5,18 @@
 <p><strong>Khách hàng:</strong> <?= $order->customer_name ?></p>
 <p><strong>SĐT:</strong> <?= $order->phone ?></p>
 <p><strong>Địa chỉ:</strong> <?= $order->address ?></p>
+<p><strong>Phương thức thanh toán:</strong> 
+    <?php
+        $method = ucfirst($order->payment_method);
+        $note = '';
+        if ($order->payment_method === 'cod') {
+            $note = ' <span class="text-secondary">(Trực tiếp)</span>';
+        } elseif ($order->payment_method === 'momo') {
+            $note = ' <span class="text-secondary">(Online)</span>';
+        }
+        echo $method . $note;
+    ?>
+</p>
 <p><strong>Trạng thái:</strong> <?= $order->status ?></p>
 <p><strong>Ngày tạo:</strong> <?= $order->created_at ?></p>
 

@@ -94,13 +94,77 @@
         background: #facc15;
         color: #22304a;
     }
+
+    /* phân trang */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 40px;
+    }
+
+    .page-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid #2563eb;
+        background: white;
+        color: #2563eb;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .page-btn:hover {
+        background: #2563eb;
+        color: white;
+    }
+
+    .page-btn.active {
+        background: #2563eb;
+        color: white;
+    }
+
+    .page-btn.disabled {
+        background: #e5e7eb;
+        color: #9ca3af;
+        border: none;
+        cursor: not-allowed;
+    }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
 
     <h1 class="product-title mb-0">Danh Sách Sản Phẩm</h1>
 
-    <input type="text" id="searchBox" class="form-control" placeholder="Tìm sản phẩm..." style="max-width:300px;">
+    <div class="d-flex gap-2">
+
+        <input type="text" id="searchBox" class="form-control" placeholder="Tìm sản phẩm..." style="width:220px;">
+
+        <select id="priceFilter" class="form-select" style="width:160px;">
+            <option value="">Giá</option>
+            <option value="1">Dưới 5 triệu</option>
+            <option value="2">5 - 10 triệu</option>
+            <option value="3">Trên 10 triệu</option>
+        </select>
+
+        <select id="categoryFilter" class="form-select" style="width:180px;">
+            <option value="">Tất cả</option>
+
+            <?php
+            $categories = [];
+            foreach ($products as $p) {
+                $categories[$p->category_name] = true;
+            }
+
+            foreach (array_keys($categories) as $cat) {
+                echo "<option value=\"$cat\">$cat</option>";
+            }
+            ?>
+
+        </select>
+
+    </div>
 
 </div>
 
@@ -110,7 +174,8 @@
 
 <div class="row" id="productList" style="display: flex; flex-wrap: wrap;">
     <?php foreach ($products as $product): ?>
-        <div class="col-12 col-sm-6 col-lg-3 mb-4 product-item" style="display: block;">
+        <div class="col-12 col-sm-6 col-lg-3 mb-4 product-item" data-name="<?= strtolower($product->name) ?>"
+            data-price="<?= $product->price ?>" data-category="<?= $product->category_name ?>">
             <div class="card product-card h-100 d-flex flex-column">
                 <a href="/webbanhang/Product/detail/<?= $product->id ?>" class="product-link">
                     <?php if (!empty($product->image)): ?>
@@ -141,6 +206,10 @@
     <?php endforeach; ?>
 </div>
 
+<div id="noProductMsg" style="display:none; text-align:center; color:white; font-size:22px; margin-top:40px;">
+    Không tìm thấy sản phẩm
+</div>
+
 <!-- phân trang -->
 <div class="d-flex justify-content-center mt-4">
     <ul class="pagination" id="pagination"></ul>
@@ -163,7 +232,7 @@
 
                         setTimeout(() => {
                             alertBox.classList.add("d-none");
-                        }, 2000);
+                        }, 1000);
                     }
                 });
         });
@@ -178,9 +247,14 @@
     const itemsPerPage = 8;
 
     function showPage(page) {
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
         currentPage = page;
 
-        // Lấy tất cả sản phẩm đang hiển thị (sau khi lọc tìm kiếm)
         const visibleProducts = Array.from(products).filter(p => p.dataset.visible !== "0");
 
         const start = (page - 1) * itemsPerPage;
@@ -191,6 +265,14 @@
         });
 
         createPagination(visibleProducts.length);
+
+        // kiểm tra nếu không có sản phẩm
+        const msg = document.getElementById("noProductMsg");
+        if (visibleProducts.length === 0) {
+            msg.style.display = "block";
+        } else {
+            msg.style.display = "none";
+        }
     }
 
     function createPagination(totalItems) {
@@ -199,24 +281,49 @@
 
         const pageCount = Math.ceil(totalItems / itemsPerPage);
 
+        if (pageCount <= 1) return;
+
+        const container = document.createElement("div");
+        container.className = "pagination-container";
+
+        // nút previous
+        const prev = document.createElement("button");
+        prev.innerText = "« Trước";
+        prev.className = "page-btn" + (currentPage === 1 ? " disabled" : "");
+        prev.onclick = () => {
+            if (currentPage > 1) showPage(currentPage - 1);
+        };
+        container.appendChild(prev);
+
+        // các số trang
         for (let i = 1; i <= pageCount; i++) {
 
-            const li = document.createElement("li");
-            li.className = "page-item";
+            const btn = document.createElement("button");
 
-            if (i === currentPage) li.classList.add("active");
+            btn.innerText = i;
 
-            const a = document.createElement("a");
-            a.className = "page-link";
-            a.textContent = i;
+            btn.className = "page-btn" + (i === currentPage ? " active" : "");
 
-            a.onclick = () => showPage(i);
+            btn.onclick = () => showPage(i);
 
-            li.appendChild(a);
-            pagination.appendChild(li);
+            container.appendChild(btn);
         }
-    }
 
+        // nút next
+        const next = document.createElement("button");
+
+        next.innerText = "Sau »";
+
+        next.className = "page-btn" + (currentPage === pageCount ? " disabled" : "");
+
+        next.onclick = () => {
+            if (currentPage < pageCount) showPage(currentPage + 1);
+        };
+
+        container.appendChild(next);
+
+        pagination.appendChild(container);
+    }
 
     searchBox.addEventListener("input", function () {
         const keyword = this.value.toLowerCase();
@@ -235,6 +342,55 @@
     // Đánh dấu tất cả sản phẩm là visible ban đầu
     products.forEach(product => product.dataset.visible = "1");
     showPage(1);
+
+    // xử lý lọc sản phẩm theo giá và danh mục
+    const priceFilter = document.getElementById("priceFilter");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    function filterProducts() {
+
+        const keyword = searchBox.value.toLowerCase();
+        const price = priceFilter.value;
+        const category = categoryFilter.value;
+
+        products.forEach(product => {
+            const name = product.dataset.name;
+            const p = parseInt(product.dataset.price);
+            const cat = product.dataset.category;
+
+            let show = true;
+
+            if (!name.includes(keyword)) show = false;
+            if (price === "1" && p > 5000000) show = false;
+            if (price === "2" && (p < 5000000 || p > 10000000)) show = false;
+            if (price === "3" && p < 10000000) show = false;
+            if (category !== "" && cat !== category) show = false;
+
+            product.dataset.visible = show ? "1" : "0";
+            product.style.display = show ? "block" : "none";
+        });
+
+        showPage(1);
+    }
+
+    searchBox.addEventListener("input", filterProducts);
+    priceFilter.addEventListener("change", filterProducts);
+    categoryFilter.addEventListener("change", filterProducts);
+
+    // đọc category từ URL
+    const params = new URLSearchParams(window.location.search);
+    const categoryFromURL = params.get("category");
+
+    if (categoryFromURL) {
+
+        const categoryFilter = document.getElementById("categoryFilter");
+
+        if (categoryFilter) {
+            categoryFilter.value = categoryFromURL;
+            filterProducts();
+        }
+
+    }
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>
