@@ -1,56 +1,495 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<h2>Chi Tiết Đơn Hàng #<?= $order->id ?></h2>
+<style>
+    body {
+        background: url('/webbanhang/public/images/background/payment-background.avif') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+    }
 
-<p><strong>Khách hàng:</strong> <?= $order->customer_name ?></p>
-<p><strong>SĐT:</strong> <?= $order->phone ?></p>
-<p><strong>Địa chỉ:</strong> <?= $order->address ?></p>
-<p><strong>Phương thức thanh toán:</strong> 
-    <?php
-        $method = ucfirst($order->payment_method);
-        $note = '';
-        if ($order->payment_method === 'cod') {
-            $note = ' <span class="text-secondary">(Trực tiếp)</span>';
-        } elseif ($order->payment_method === 'momo') {
-            $note = ' <span class="text-secondary">(Online)</span>';
+    /* Tiêu đề */
+    .page-title {
+        font-size: 42px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #facc15 0%, #fbbf24 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        position: relative;
+        padding-bottom: 15px;
+        margin-bottom: 35px;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #facc15, #fbbf24, transparent);
+        border-radius: 2px;
+    }
+
+    /* Container */
+    .detail-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        margin-bottom: 40px;
+    }
+
+    /* Info section */
+    .info-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 35px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .info-value {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .info-value.highlight {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .info-value.status {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+    }
+
+    .status-confirmed {
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        color: white;
+    }
+
+    .status-shipping {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        color: white;
+    }
+
+    .status-completed {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .status-cancelled {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    /* Table section */
+    .table-section {
+        margin-bottom: 30px;
+    }
+
+    .table-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #dbeafe;
+    }
+
+    /* Table styling */
+    .detail-table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    .detail-table thead {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+
+    .detail-table thead th {
+        color: #ffffff;
+        font-weight: 700;
+        padding: 18px 16px;
+        text-align: center;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border: 1px solid #374151;
+    }
+
+    .detail-table thead th:first-child {
+        text-align: left;
+        border-left: none;
+    }
+
+    .detail-table thead th:last-child {
+        border-right: none;
+    }
+
+    .detail-table tbody tr {
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .detail-table tbody tr:hover {
+        background-color: #f9fafb;
+        box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .detail-table tbody td {
+        padding: 18px 16px;
+        vertical-align: middle;
+        color: #374151;
+        font-size: 14px;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .detail-table tbody td:first-child {
+        border-left: 1px solid #e5e7eb;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .detail-table tbody td:last-child {
+        border-right: none;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .detail-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Total summary */
+    .total-summary {
+        background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+        border: 2px solid #dbeafe;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 30px 0;
+        text-align: right;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 12px 0;
+        font-size: 15px;
+        gap: 20px;
+    }
+
+    .summary-row.total {
+        border-top: 2px solid #bfdbfe;
+        padding-top: 16px;
+        margin-top: 16px;
+    }
+
+    .summary-label {
+        font-weight: 600;
+        color: #0c4a6e;
+    }
+
+    .summary-amount {
+        font-weight: 700;
+        color: #0c4a6e;
+        min-width: 180px;
+    }
+
+    .summary-amount.total-amount {
+        font-size: 24px;
+        background: linear-gradient(135deg, #059669, #047857);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Button */
+    .btn-back {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 14px 32px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 20px;
+    }
+
+    .btn-back:hover {
+        background: #e5e7eb;
+        border-color: #d1d5db;
+        transform: translateY(-3px);
+        color: #374151;
+        text-decoration: none;
+    }
+
+    .btn-back:active {
+        transform: translateY(-1px);
+    }
+
+    /* Table wrapper */
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .detail-container {
+            padding: 25px;
         }
-        echo $method . $note;
-    ?>
-</p>
-<p><strong>Trạng thái:</strong> <?= $order->status ?></p>
-<p><strong>Ngày tạo:</strong> <?= $order->created_at ?></p>
 
-<hr>
+        .page-title {
+            font-size: 28px;
+        }
 
-<table class="table table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Thành tiền</th>
-        </tr>
-    </thead>
-    <tbody>
+        .info-section {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
 
-        <?php foreach ($details as $item):
-            $subtotal = $item->price * $item->quantity;
-            ?>
+        .detail-table thead th {
+            padding: 12px 8px;
+            font-size: 11px;
+        }
 
-            <tr>
-                <td><?= $item->name ?></td>
-                <td><?= $item->quantity ?></td>
-                <td><?= number_format($item->price, 0, ',', '.') ?> VNĐ</td>
-                <td><?= number_format($subtotal, 0, ',', '.') ?> VNĐ</td>
-            </tr>
+        .detail-table tbody td {
+            padding: 12px 8px;
+            font-size: 13px;
+        }
 
-        <?php endforeach; ?>
+        .summary-row {
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
 
-    </tbody>
-</table>
+        .summary-amount {
+            min-width: auto;
+        }
 
-<a href="/webbanhang/Order" class="btn btn-secondary">
-    Quay lại
-</a>
+        .summary-amount.total-amount {
+            font-size: 20px;
+        }
+
+        .total-summary {
+            text-align: left;
+        }
+
+        .summary-row {
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .detail-container {
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            padding: 16px;
+        }
+
+        .info-value {
+            font-size: 14px;
+        }
+
+        .detail-table thead th {
+            font-size: 10px;
+            padding: 10px 6px;
+        }
+
+        .detail-table tbody td {
+            padding: 10px 6px;
+            font-size: 12px;
+        }
+
+        .btn-back {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="detail-container">
+    <h1 class="page-title">Chi Tiết Đơn Hàng #<?= $order->id ?></h1>
+
+    <!-- Thông tin đơn hàng -->
+    <div class="info-section">
+        <div class="info-card">
+            <span class="info-label">Khách hàng</span>
+            <span class="info-value"><?= htmlspecialchars($order->customer_name) ?></span>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Số điện thoại</span>
+            <span class="info-value"><?= htmlspecialchars($order->phone) ?></span>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Địa chỉ</span>
+            <span class="info-value"><?= htmlspecialchars($order->address) ?></span>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Phương thức thanh toán</span>
+            <span class="info-value">
+                <?php
+                    if ($order->payment_method === 'cod') {
+                        echo 'COD (Trực tiếp)';
+                    } elseif ($order->payment_method === 'momo') {
+                        echo 'MoMo (Online)';
+                    } else {
+                        echo ucfirst($order->payment_method);
+                    }
+                ?>
+            </span>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Trạng thái</span>
+            <span class="info-value status <?php
+                echo match($order->status) {
+                    'pending' => 'status-pending',
+                    'confirmed' => 'status-confirmed',
+                    'shipping' => 'status-shipping',
+                    'completed' => 'status-completed',
+                    'cancelled' => 'status-cancelled',
+                    default => ''
+                };
+            ?>">
+                <?php
+                    echo match($order->status) {
+                        'pending' => 'Chờ xác nhận',
+                        'confirmed' => 'Đã xác nhận',
+                        'shipping' => 'Đang giao',
+                        'completed' => 'Hoàn thành',
+                        'cancelled' => 'Hủy',
+                        default => ucfirst($order->status)
+                    };
+                ?>
+            </span>
+        </div>
+
+        <div class="info-card">
+            <span class="info-label">Ngày tạo</span>
+            <span class="info-value"><?= date('d/m/Y H:i', strtotime($order->created_at)) ?></span>
+        </div>
+    </div>
+
+    <!-- Bảng sản phẩm -->
+    <div class="table-section">
+        <div class="table-title">Chi tiết sản phẩm</div>
+
+        <div class="table-wrapper">
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <?php 
+                    $total = 0;
+                    foreach ($details as $item):
+                        $subtotal = $item->price * $item->quantity;
+                        $total += $subtotal;
+                    ?>
+
+                        <tr>
+                            <td><?= htmlspecialchars($item->name) ?></td>
+                            <td style="text-align: center;"><?= $item->quantity ?></td>
+                            <td style="text-align: center;"><?= number_format($item->price, 0, ',', '.') ?> VNĐ</td>
+                            <td><?= number_format($subtotal, 0, ',', '.') ?> VNĐ</td>
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tổng cộng -->
+    <div class="total-summary">
+        <div class="summary-row total">
+            <span class="summary-label">Tổng tiền:</span>
+            <span class="summary-amount total-amount">
+                <?= number_format($order->total_amount, 0, ',', '.') ?> VNĐ
+            </span>
+        </div>
+    </div>
+
+    <!-- Button quay lại -->
+    <a href="/webbanhang/Order/myOrders" class="btn-back">
+        Quay lại danh sách đơn hàng
+    </a>
+</div>
 
 <?php include 'app/views/shares/footer.php'; ?>

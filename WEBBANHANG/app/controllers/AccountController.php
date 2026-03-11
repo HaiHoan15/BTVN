@@ -20,26 +20,40 @@ class AccountController
         include 'app/views/account/register.php';
     }
 
-    // Xử lý đăng ký
+    // Xử lý đăng ký 
     public function store()
     {
         $username = $_POST['username'];
-        $phone = $_POST['phone'];
-        $address = $_POST['address'];
+        $email = $_POST['email'];
+        $phone = $_POST['phone'] ?? null;
+        $address = $_POST['address'] ?? null;
         $password = $_POST['password'];
         $confirmPassword = $_POST['confirm_password'];
 
         if ($password !== $confirmPassword) {
-            die("Mật khẩu xác nhận không khớp.");
+            header("Location: /webbanhang/Account/register?error=password");
+            exit();
         }
 
-        if ($this->accountModel->findByUsername($username)) {
-            die("Tên tài khoản đã tồn tại.");
+        if ($this->accountModel->usernameExists($username)) {
+            header("Location: /webbanhang/Account/register?error=username");
+            exit();
         }
 
-        $this->accountModel->register($username, $phone, $address, $password);
+        if ($this->accountModel->emailExists($email)) {
+            header("Location: /webbanhang/Account/register?error=email");
+            exit();
+        }
 
-        header("Location: /webbanhang/Account/login");
+        $this->accountModel->register(
+            $username,
+            $email,
+            $phone,
+            $address,
+            $password
+        );
+
+        header("Location: /webbanhang/Account/login?register=success");
         exit();
     }
 
@@ -52,21 +66,22 @@ class AccountController
     // Xử lý login
     public function authenticate()
     {
-        $username = $_POST['username'];
+        $email = $_POST['email'];
         $password = $_POST['password'];
 
-        $user = $this->accountModel->findByUsername($username);
+        $user = $this->accountModel->findByEmail($email);
 
         if (!$user || !password_verify($password, $user->password)) {
-            die("Sai tài khoản hoặc mật khẩu.");
+
+            header("Location: /webbanhang/Account/login?error=invalid");
+            exit();
         }
 
         SessionHelper::login($user);
 
-        header("Location: /webbanhang/");
+        header("Location: /webbanhang/?login=success");
         exit();
     }
-
     // Logout
     public function logout()
     {
@@ -130,6 +145,84 @@ class AccountController
         $stmt->execute();
 
         header("Location: /webbanhang/Account/manage");
+        exit();
+    }
+
+    public function index()
+    {
+        if (!SessionHelper::isLoggedIn()) {
+            header("Location: /webbanhang/Account/login");
+            exit();
+        }
+
+        $user = SessionHelper::user();
+        $account = $this->accountModel->getById($user['id']);
+
+        // nếu submit form
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $username = $_POST['username'];
+            $phone = $_POST['phone'];
+            $address = $_POST['address'];
+
+            $password = $_POST['password'] ?? null;
+            $confirm = $_POST['confirm_password'] ?? null;
+
+            $avatar = null;
+
+            // kiểm tra username trùng
+            if ($this->accountModel->usernameExists($username, $account->id)) {
+                die("Username đã tồn tại");
+            }
+
+            // kiểm tra confirm password
+            if (!empty($password)) {
+
+                if ($password !== $confirm) {
+                    die("Mật khẩu xác nhận không đúng");
+                }
+            }
+
+            // upload avatar
+            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
+
+                $avatar = file_get_contents($_FILES['avatar']['tmp_name']);
+            }
+
+            $this->accountModel->updateAccount(
+                $account->id,
+                $username,
+                $phone,
+                $address,
+                $password,
+                $avatar
+            );
+
+            $_SESSION['username'] = $username;
+
+            header("Location: /webbanhang/Account/index");
+            exit();
+        }
+
+        include 'app/views/account/index.php';
+    }
+    public function checkUsername()
+    {
+        if (!isset($_GET['username'])) {
+            echo json_encode(['exists' => false]);
+            exit();
+        }
+
+        $username = $_GET['username'];
+
+        $query = "SELECT id FROM account WHERE username = :username LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(":username", $username);
+        $stmt->execute();
+
+        echo json_encode([
+            'exists' => $stmt->rowCount() > 0
+        ]);
         exit();
     }
 }

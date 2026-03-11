@@ -22,11 +22,30 @@ class OrderController
     }
     public function checkout()
     {
+        if (!SessionHelper::isLoggedIn()) {
+            header("Location: /webbanhang/Account/login");
+            exit();
+        }
+
         $cart = $_SESSION['cart'] ?? [];
 
+        // nếu giỏ hàng trống thì quay lại cart
         if (empty($cart)) {
             header("Location: /webbanhang/Cart");
             exit();
+        }
+
+        $user = SessionHelper::user();
+
+        // lấy thông tin account
+        require_once 'app/models/AccountModel.php';
+        $accountModel = new AccountModel($this->db);
+        $account = $accountModel->getById($user['id']);
+
+        // tính tổng tiền
+        $total = 0;
+        foreach ($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
         }
 
         include 'app/views/order/checkout.php';
@@ -35,8 +54,9 @@ class OrderController
     {
         $cart = $_SESSION['cart'] ?? [];
 
+
         if (empty($cart)) {
-            header("Location: /webbanhang/Order/myOrders");
+            header("Location: /webbanhang/Cart");
             exit();
         }
 
@@ -51,47 +71,56 @@ class OrderController
         }
 
         $paymentMethod = $_POST['payment_method'];
-        $paymentStatus = 'unpaid';
-        $accountId = SessionHelper::user()['id'];
 
-        // Insert order trước
-        $query = "INSERT INTO orders
+        // Nếu COD thì tạo order ngay
+        if ($paymentMethod === 'cod') {
+
+            $accountId = SessionHelper::user()['id'];
+
+            $query = "INSERT INTO orders
     (account_id, customer_name, phone, address, note, total_amount, status, payment_method, payment_status)
-    VALUES (:account_id, :name, :phone, :address, :note, :total, 'pending', :payment_method, :payment_status)";
+    VALUES (:account_id, :name, :phone, :address, :note, :total, 'pending', 'cod', 'unpaid')";
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(":account_id", $accountId);
-        $stmt->bindParam(":name", $_POST['customer_name']);
-        $stmt->bindParam(":phone", $_POST['phone']);
-        $stmt->bindParam(":address", $_POST['address']);
-        $stmt->bindParam(":note", $_POST['note']);
-        $stmt->bindParam(":total", $total);
-        $stmt->bindParam(":payment_method", $paymentMethod);
-        $stmt->bindParam(":payment_status", $paymentStatus);
-        $stmt->execute();
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(":account_id", $accountId);
+            $stmt->bindParam(":name", $_POST['customer_name']);
+            $stmt->bindParam(":phone", $_POST['phone']);
+            $stmt->bindParam(":address", $_POST['address']);
+            $stmt->bindParam(":note", $_POST['note']);
+            $stmt->bindParam(":total", $total);
+            $stmt->execute();
 
-        $orderId = $this->db->lastInsertId();
+            $orderId = $this->db->lastInsertId();
 
-        // Insert order details luôn trước khi thanh toán
-        foreach ($cart as $item) {
-            $detailQuery = "INSERT INTO order_details
+            foreach ($cart as $item) {
+
+                $detailQuery = "INSERT INTO order_details
         (order_id, product_id, quantity, price)
         VALUES (:order_id, :product_id, :quantity, :price)";
 
-            $detailStmt = $this->db->prepare($detailQuery);
-            $detailStmt->bindParam(":order_id", $orderId);
-            $detailStmt->bindParam(":product_id", $item['id']);
-            $detailStmt->bindParam(":quantity", $item['quantity']);
-            $detailStmt->bindParam(":price", $item['price']);
-            $detailStmt->execute();
-        }
+                $detailStmt = $this->db->prepare($detailQuery);
+                $detailStmt->bindParam(":order_id", $orderId);
+                $detailStmt->bindParam(":product_id", $item['id']);
+                $detailStmt->bindParam(":quantity", $item['quantity']);
+                $detailStmt->bindParam(":price", $item['price']);
+                $detailStmt->execute();
+            }
 
-        // Nếu COD thì xong
-        if ($paymentMethod === 'cod') {
             unset($_SESSION['cart']);
+
             header("Location: /webbanhang/Order/myOrders");
             exit();
         }
+
+        // Lưu dữ liệu tạm để tạo order sau khi thanh toán
+        $_SESSION['pending_order'] = [
+            "cart" => $cart,
+            "customer_name" => $_POST['customer_name'],
+            "phone" => $_POST['phone'],
+            "address" => $_POST['address'],
+            "note" => $_POST['note'],
+            "total" => $total
+        ];
 
         $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
@@ -100,19 +129,16 @@ class OrderController
         $secretKey = "at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa";
 
         $requestId = time() . "";
-        $orderIdStr = (string) $orderId;
+        $orderIdStr = "MOMO_" . time();
         $amount = (string) $total;
-        $orderInfo = "Thanh toán đơn hàng #" . $orderIdStr;
+        $orderInfo = "Thanh toán đơn hàng MoMo";
 
         $redirectUrl = "http://localhost/webbanhang/Order/momoReturn";
         $ipnUrl = "http://localhost/webbanhang/Order/momoReturn";
 
-        $requestType = "payWithMethod";
+        $requestType = "payWithATM";
         $extraData = "";
-        $autoCapture = "true";
-        $orderGroupId = "";
 
-        // RAW HASH CHUẨN V2 MỚI
         $rawHash =
             "accessKey=" . $accessKey .
             "&amount=" . $amount .
@@ -141,7 +167,6 @@ class OrderController
             "requestType" => $requestType,
             "autoCapture" => true,
             "extraData" => $extraData,
-            "orderGroupId" => $orderGroupId,
             "signature" => $signature
         ];
 
@@ -149,7 +174,6 @@ class OrderController
         $jsonResult = json_decode($result, true);
 
         if (isset($jsonResult['payUrl'])) {
-            unset($_SESSION['cart']);
             header("Location: " . $jsonResult['payUrl']);
             exit();
         } else {
@@ -159,6 +183,7 @@ class OrderController
             die("MoMo API error");
         }
     }
+
     public function show($id)
     {
         $query = "SELECT * FROM orders WHERE id = :id";
@@ -246,20 +271,82 @@ class OrderController
     }
     public function momoReturn()
     {
-        if (isset($_GET['resultCode']) && $_GET['resultCode'] == 0) {
+        if (!isset($_GET['resultCode']) || $_GET['resultCode'] != 0) {
+            header("Location: /webbanhang/Cart");
+            exit();
+        }
 
-            $orderId = $_GET['orderId'];
+        if (!isset($_SESSION['pending_order'])) {
+            header("Location: /webbanhang");
+            exit();
+        }
+
+        $data = $_SESSION['pending_order'];
+        $cart = $data['cart'];
+        $accountId = SessionHelper::user()['id'];
+
+        // tạo order
+        $query = "INSERT INTO orders
+(account_id, customer_name, phone, address, note, total_amount, status, payment_method, payment_status)
+VALUES (:account_id, :name, :phone, :address, :note, :total, 'confirmed', 'momo', 'paid')";
+
+        $stmt = $this->db->prepare($query);
+
+        $stmt->bindValue(":account_id", $accountId);
+        $stmt->bindValue(":name", $data['customer_name']);
+        $stmt->bindValue(":phone", $data['phone']);
+        $stmt->bindValue(":address", $data['address']);
+        $stmt->bindValue(":note", $data['note']);
+        $stmt->bindValue(":total", $data['total']);
+
+        $stmt->execute();
+
+        $orderId = $this->db->lastInsertId();
+
+        // tạo order details
+        foreach ($cart as $item) {
+
+            $detailQuery = "INSERT INTO order_details
+    (order_id, product_id, quantity, price)
+    VALUES (:order_id, :product_id, :quantity, :price)";
+
+            $detailStmt = $this->db->prepare($detailQuery);
+
+            $detailStmt->bindValue(":order_id", $orderId);
+            $detailStmt->bindValue(":product_id", $item['id']);
+            $detailStmt->bindValue(":quantity", $item['quantity']);
+            $detailStmt->bindValue(":price", $item['price']);
+
+            $detailStmt->execute();
+        }
+
+        // xóa cart và pending order
+        unset($_SESSION['cart']);
+        unset($_SESSION['pending_order']);
+
+        header("Location: /webbanhang/Order/myOrders");
+        exit();
+
+    }
+
+    public function momoIPN()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if ($data['resultCode'] == 0) {
+
+            $orderIdMomo = $data['orderId'];
+            $orderId = explode("_", $orderIdMomo)[0];
 
             $query = "UPDATE orders 
                   SET payment_status = 'paid', status = 'confirmed'
-                  WHERE id = :id";
+                  WHERE id = :id AND payment_status = 'unpaid'";
 
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(":id", $orderId);
             $stmt->execute();
         }
 
-        header("Location: /webbanhang/Order/myOrders");
-        exit();
+        echo json_encode(["status" => "ok"]);
     }
 }

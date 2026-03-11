@@ -216,9 +216,13 @@ SessionHelper::start();
 
 
                         <li class="nav-item">
-                            <span class="nav-link nav-username">
+                            <!-- <span class="nav-link nav-username">
                                 <?= SessionHelper::user()['username']; ?>
-                            </span>
+                            </span> -->
+                            <a class="nav-link nav-username <?= (strpos($current, 'Account') !== false ? 'active' : '') ?>"
+                                href="/webbanhang/Account">
+                                <?= SessionHelper::user()['username']; ?>
+                            </a>
                         </li>
 
                         <li class="nav-item">

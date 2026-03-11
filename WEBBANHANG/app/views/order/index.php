@@ -25,7 +25,7 @@
                 <td>
                     <select class="form-select status-select" data-id="<?= $order->id ?>">
                         <?php
-                        $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+                        $statuses = ['pending', 'confirmed','shipping', 'completed', 'cancelled'];
                         foreach ($statuses as $status):
                             ?>
                             <option value="<?= $status ?>" <?= $order->status == $status ? 'selected' : '' ?>>
