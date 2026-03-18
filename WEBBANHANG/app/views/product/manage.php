@@ -2,6 +2,25 @@
 
 <h1 class="mb-4">Quản Lý Sản Phẩm</h1>
 
+<input type="text" id="searchBox" class="form-control" placeholder="Tìm sản phẩm..." style="width:220px; margin-top: 10px;">
+
+<script>
+    // Tìm kiếm sản phẩm theo tên
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', function() {
+        const filter = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            if (productName.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <a href="/webbanhang/Product/create" class="btn btn-success mb-3">
     + Thêm Sản Phẩm
 </a>

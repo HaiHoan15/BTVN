@@ -113,6 +113,7 @@ SessionHelper::start();
         }
     </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -183,7 +184,12 @@ SessionHelper::start();
 
 
                         <?php if (SessionHelper::isAdmin()): ?>
-
+                            <li class="nav-item">
+                                <a class="nav-link <?= (strpos($current, 'DashBoard') !== false ? 'active' : '') ?>"
+                                    href="/webbanhang/DashBoard">
+                                    Thống kê
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link <?= (strpos($current, 'Account/manage') !== false ? 'active' : '') ?>"
                                     href="/webbanhang/Account/manage">

@@ -2,6 +2,25 @@
 
 <h1>Quản Lý Đơn Hàng</h1>
 
+<input type="text" id="searchBox" class="form-control" placeholder="Tìm đơn hàng..." style="width:220px; margin-top: 10px;">
+
+<script>
+    // Tìm kiếm đơn hàng theo tên khách hàng
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', function() {
+        const filter = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            if (customerName.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <table class="table table-bordered">
     <thead class="table-dark">
         <tr>

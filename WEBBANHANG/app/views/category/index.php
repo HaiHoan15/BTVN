@@ -2,6 +2,25 @@
 
 <h1 class="mb-4">Quản Lý Danh Mục</h1>
 
+<input type="text" id="searchBox" class="form-control" placeholder="Tìm danh mục..." style="width:220px; margin-top: 10px;">
+
+<script>
+    // Tìm kiếm danh mục theo tên
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', function() {
+        const filter = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const categoryName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            if (categoryName.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <?php if (isset($_GET['error']) && $_GET['error'] == 'has_product'): ?>
     <div class="alert alert-danger alert-dismissible fade show">
         Không thể xóa danh mục vì còn sản phẩm liên kết.

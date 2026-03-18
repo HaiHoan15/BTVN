@@ -2,6 +2,25 @@
 
 <h2 class="mb-4">Quản lý tài khoản</h2>
 
+<input type="text" id="searchBox" class="form-control" placeholder="Tìm tài khoản..." style="width:220px; margin-top: 10px;">
+
+<script>
+    // Tìm kiếm tài khoản theo tên
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', function() {
+        const filter = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const username = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            if (username.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <table class="table table-bordered text-center align-middle">
     <thead class="table-dark">
         <tr>
