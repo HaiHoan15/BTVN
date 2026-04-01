@@ -1,7 +1,380 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<div class="checkout-container">
-    <h1 class="page-title">Thanh Toán</h1>
+<style>
+    :root {
+        --primary-color: #B8936A;
+        --secondary-color: #1a1f36;
+        --accent-color: #D4AF37;
+        --light-bg: #F8F7F3;
+        --text-dark: #2C3E50;
+        --text-light: #6B7280;
+        --border-color: #E8E6E3;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .checkout-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding: 40px 0;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+        grid-column: 1 / -1;
+        padding-bottom: 30px;
+        border-bottom: 2px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* FORM SECTIONS */
+    .form-section {
+        background: var(--light-bg);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .required {
+        color: #EF4444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        color: var(--text-dark);
+        background: white;
+        transition: all 0.3s;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(184, 147, 106, 0.1);
+    }
+
+    .form-control:disabled,
+    .form-control[readonly] {
+        background: #F3F4F6;
+        color: var(--text-light);
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* PAYMENT OPTIONS */
+    .payment-options {
+        display: grid;
+        gap: 12px;
+    }
+
+    .payment-option {
+        position: relative;
+    }
+
+    .payment-option input[type="radio"] {
+        margin-right: 10px;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .payment-option-label {
+        display: flex;
+        align-items: center;
+        padding: 15px 18px;
+        background: white;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-dark);
+        transition: all 0.3s;
+    }
+
+    .payment-option input[type="radio"]:checked + .payment-option-label {
+        border-color: var(--primary-color);
+        background: rgba(184, 147, 106, 0.05);
+    }
+
+    /* ORDER SUMMARY */
+    .order-summary {
+        background: var(--light-bg);
+        border-radius: 12px;
+        padding: 25px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .summary-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .summary-row:last-of-type {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        color: var(--text-light);
+    }
+
+    .summary-value {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        margin-top: 15px;
+        border-top: 2px solid var(--border-color);
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .summary-total-amount {
+        color: var(--primary-color);
+    }
+
+    /* BUTTONS */
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .btn-action {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-submit {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-submit:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--border-color);
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-color);
+        background: rgba(184, 147, 106, 0.05);
+    }
+
+    /* INFO BOX */
+    .info-box {
+        grid-column: 1 / -1;
+        background: rgba(212, 175, 55, 0.08);
+        border-left: 4px solid var(--accent-color);
+        border-radius: 8px;
+        padding: 15px 18px;
+        color: var(--secondary-color);
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .checkout-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .order-summary {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="checkout-wrapper">
+
+        <!-- INFO BOX -->
+        <div class="info-box">
+            <i class="bi bi-info-circle"></i> Vui lòng kiểm tra thông tin cẩn thận trước khi xác nhận đơn hàng
+        </div>
+
+        <!-- FORM SECTION -->
+        <form method="POST" action="/webbanhang/Order/store">
+
+            <!-- CUSTOMER INFO -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="bi bi-person"></i> Thông tin khách hàng</h2>
+                
+                <div class="form-group">
+                    <label>Tên khách hàng</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($account->username) ?>" readonly>
+                    <input type="hidden" name="customer_name" value="<?= htmlspecialchars($account->username) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" value="<?= htmlspecialchars($account->email) ?>" readonly>
+                </div>
+            </div>
+
+            <!-- DELIVERY INFO -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="bi bi-truck"></i> Thông tin giao hàng</h2>
+                
+                <div class="form-group">
+                    <label>Số điện thoại <span class="required">*</span></label>
+                    <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($account->phone ?? '') ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ <span class="required">*</span></label>
+                    <textarea name="address" class="form-control" required><?= htmlspecialchars($account->address ?? '') ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú đặc biệt</label>
+                    <textarea name="note" class="form-control" placeholder="Ví dụ: Giao vào buổi sáng, để phía ngoài cửa..."></textarea>
+                </div>
+            </div>
+
+            <!-- PAYMENT METHOD -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="bi bi-credit-card"></i> Phương thức thanh toán</h2>
+                
+                <div class="payment-options">
+                    <div class="payment-option">
+                        <input type="radio" id="payment_cod" name="payment_method" value="cod" checked>
+                        <label for="payment_cod" class="payment-option-label">
+                            <i class="bi bi-cash-coin"></i> Thanh toán trực tiếp (COD)
+                        </label>
+                    </div>
+
+                    <div class="payment-option">
+                        <input type="radio" id="payment_momo" name="payment_method" value="momo">
+                        <label for="payment_momo" class="payment-option-label">
+                            <i class="bi bi-wallet2"></i> Thanh toán qua MoMo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="button-group">
+                <button type="submit" class="btn-action btn-submit">
+                    <i class="bi bi-check-circle"></i> Xác nhận đặt hàng
+                </button>
+                <a href="/webbanhang/Cart" class="btn-action btn-back">
+                    <i class="bi bi-arrow-left"></i> Quay lại giỏ hàng
+                </a>
+            </div>
+
+        </form>
+
+        <!-- ORDER SUMMARY (Sticky Sidebar) -->
+        <div class="order-summary">
+            <h3 class="summary-title"><i class="bi bi-receipt"></i> Tóm tắt đơn hàng</h3>
+            
+            <div class="summary-row">
+                <span class="summary-label">Tạm tính:</span>
+                <span class="summary-value"><?= number_format($total, 0, ',', '.') ?> đ</span>
+            </div>
+
+            <div class="summary-row">
+                <span class="summary-label">Phí vận chuyển:</span>
+                <span class="summary-value">Miễn phí</span>
+            </div>
+
+            <div class="summary-total">
+                <span>Tổng cộng:</span>
+                <span class="summary-total-amount"><?= number_format($total, 0, ',', '.') ?> đ</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<?php include 'app/views/shares/footer.php'; ?>
 
     <div class="info-box">
         Vui lòng kiểm tra thông tin và hoàn tất đơn hàng của bạn

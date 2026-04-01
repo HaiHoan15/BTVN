@@ -2,6 +2,7 @@
 require_once 'app/config/database.php';
 require_once 'app/models/AccountModel.php';
 require_once 'app/helpers/SessionHelper.php';
+require_once 'app/helpers/JwtHandler.php';
 
 class AccountController
 {
@@ -66,19 +67,31 @@ class AccountController
     // Xử lý login
     public function authenticate()
     {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
 
         $user = $this->accountModel->findByEmail($email);
 
         if (!$user || !password_verify($password, $user->password)) {
-
             header("Location: /webbanhang/Account/login?error=invalid");
             exit();
         }
 
+        // tạo token
+        require_once 'app/helpers/JwtHandler.php';
+        $jwt = new JwtHandler();
+        $token = $jwt->generateToken([
+            "id" => $user->id,
+            "email" => $user->email
+        ]);
+
+        //  LƯU TOKEN VÀO SESSION
+        $_SESSION['token'] = $token;
+
+        // login như cũ
         SessionHelper::login($user);
 
+        // redirect về trang chủ
         header("Location: /webbanhang/?login=success");
         exit();
     }
@@ -224,5 +237,34 @@ class AccountController
             'exists' => $stmt->rowCount() > 0
         ]);
         exit();
+    }
+    public function checkApi()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
+
+        $user = $this->accountModel->findByEmail($email);
+
+        if (!$user || !password_verify($password, $user->password)) {
+            echo json_encode([
+                "message" => "Sai tài khoản hoặc mật khẩu"
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        require_once 'app/helpers/JwtHandler.php';
+
+        $jwt = new JwtHandler();
+        $token = $jwt->generateToken([
+            "id" => $user->id,
+            "email" => $user->email
+        ]);
+
+        echo json_encode([
+            "message" => "Đăng nhập thành công",
+            "token" => $token
+        ], JSON_UNESCAPED_UNICODE);
     }
 }

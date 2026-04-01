@@ -27,7 +27,7 @@ class CartController
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => $item['quantity'],
-                    'image' => $product->image
+                    // 'image' => $product->image
                 ];
             }
         }

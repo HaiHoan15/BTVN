@@ -1,11 +1,519 @@
 <?php include 'app/views/shares/header.php'; ?>
 
 <style>
-    body {
-        background: url('/webbanhang/public/images/background/order-background.avif') no-repeat center center fixed;
-        background-size: cover;
-        min-height: 100vh;
+    :root {
+        --primary-color: #B8936A;
+        --secondary-color: #1a1f36;
+        --accent-color: #D4AF37;
+        --light-bg: #F8F7F3;
+        --text-dark: #2C3E50;
+        --text-light: #6B7280;
+        --border-color: #E8E6E3;
     }
+
+    body {
+        background-color: white;
+    }
+
+    .orders-container {
+        padding: 40px 0;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        background: var(--light-bg);
+        border-radius: 12px;
+    }
+
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+
+    .empty-state-text {
+        font-size: 18px;
+        color: var(--text-light);
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    .empty-state-link {
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .empty-state-link:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    /* TABLE WRAPPER */
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+
+    /* TABLE STYLING */
+    .orders-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .orders-table thead {
+        background: var(--secondary-color);
+    }
+
+    .orders-table thead th {
+        color: white;
+        font-weight: 700;
+        padding: 18px 16px;
+        text-align: center;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .orders-table thead th:first-child {
+        text-align: left;
+    }
+
+    .orders-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s;
+    }
+
+    .orders-table tbody tr:hover {
+        background-color: var(--light-bg);
+    }
+
+    .orders-table tbody td {
+        padding: 18px 16px;
+        color: var(--text-dark);
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .orders-table tbody td:first-child {
+        text-align: left;
+    }
+
+    .orders-table tbody td {
+        text-align: center;
+    }
+
+    /* ORDER ID */
+    .order-id {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* ORDER AMOUNT */
+    .order-amount {
+        font-weight: 700;
+        color: var(--accent-color);
+        font-size: 16px;
+    }
+
+    /* PAYMENT METHOD */
+    .payment-method {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .payment-note {
+        color: var(--text-light);
+        font-size: 12px;
+        display: block;
+        margin-top: 4px;
+    }
+
+    /* STATUS BADGES */
+    .status-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.pending {
+        background: rgba(212, 175, 55, 0.15);
+        color: var(--accent-color);
+    }
+
+    .status-badge.confirmed {
+        background: rgba(184, 147, 106, 0.15);
+        color: var(--primary-color);
+    }
+
+    .status-badge.shipping {
+        background: rgba(26, 31, 54, 0.1);
+        color: var(--secondary-color);
+    }
+
+    .status-badge.completed {
+        background: rgba(76, 175, 80, 0.15);
+        color: #4CAF50;
+    }
+
+    .status-badge.cancelled {
+        background: rgba(244, 67, 54, 0.15);
+        color: #F44336;
+    }
+
+    /* ORDER DATE */
+    .order-date {
+        color: var(--text-light);
+        font-size: 13px;
+    }
+
+    /* ACTION BUTTON */
+    .btn-view {
+        background: var(--primary-color);
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-view:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* PAGINATION */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        color: var(--text-light);
+        font-weight: 600;
+        font-size: 13px;
+        margin-right: 20px;
+    }
+
+    .pagination-list {
+        display: flex;
+        gap: 4px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        background: white;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+
+    .pagination-link:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: rgba(184, 147, 106, 0.05);
+    }
+
+    .pagination-link.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .pagination-link.disabled {
+        color: var(--text-light);
+        border-color: var(--border-color);
+        cursor: not-allowed;
+        background: white;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 24px;
+        }
+
+        .orders-table thead th {
+            padding: 12px 8px;
+            font-size: 11px;
+        }
+
+        .orders-table tbody td {
+            padding: 12px 8px;
+            font-size: 12px;
+        }
+
+        .btn-view {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .pagination-info {
+            margin-right: 15px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="orders-container">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h1 class="page-title"><i class="bi bi-receipt"></i> Đơn hàng của tôi</h1>
+        </div>
+
+        <?php if (empty($orders)): ?>
+
+            <!-- EMPTY STATE -->
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-box"></i></div>
+                <p class="empty-state-text">Bạn chưa có đơn hàng nào</p>
+                <a href="/webbanhang/Product/index" class="empty-state-link">
+                    <i class="bi bi-shop"></i> Bắt đầu mua sắm
+                </a>
+            </div>
+
+        <?php else: ?>
+
+            <!-- ORDERS TABLE -->
+            <div class="table-wrapper">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Tổng tiền</th>
+                            <th>Phương thức</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($orders as $order): ?>
+                            <tr>
+                                <td>
+                                    <span class="order-id">#<?= $order->id ?></span>
+                                </td>
+                                <td>
+                                    <span class="order-amount"><?= number_format($order->total_amount, 0, ',', '.') ?> đ</span>
+                                </td>
+                                <td>
+                                    <div class="payment-method">
+                                        <?php
+                                        $method = '';
+                                        if ($order->payment_method === 'cod') {
+                                            $method = 'COD';
+                                        } elseif ($order->payment_method === 'momo') {
+                                            $method = 'MoMo';
+                                        } else {
+                                            $method = ucfirst($order->payment_method);
+                                        }
+                                        echo $method;
+                                        ?>
+                                    </div>
+                                    <span class="payment-note">
+                                        <?php
+                                        if ($order->payment_method === 'cod') {
+                                            echo '(Trực tiếp)';
+                                        } elseif ($order->payment_method === 'momo') {
+                                            echo '(Online)';
+                                        }
+                                        ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php
+                                    $statusClass = match ($order->status) {
+                                        'pending' => 'pending',
+                                        'confirmed' => 'confirmed',
+                                        'shipping' => 'shipping',
+                                        'completed' => 'completed',
+                                        'cancelled' => 'cancelled',
+                                        default => 'secondary'
+                                    };
+
+                                    $statusText = match ($order->status) {
+                                        'pending' => 'Chờ xác nhận',
+                                        'confirmed' => 'Đã xác nhận',
+                                        'shipping' => 'Đang giao',
+                                        'completed' => 'Hoàn thành',
+                                        'cancelled' => 'Hủy',
+                                        default => ucfirst($order->status)
+                                    };
+                                    ?>
+                                    <span class="status-badge <?= $statusClass ?>">
+                                        <?= $statusText ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="order-date">
+                                        <?= date('d/m/Y H:i', strtotime($order->created_at)) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/webbanhang/Order/show/<?= $order->id ?>" class="btn-view">
+                                        <i class="bi bi-eye"></i> Xem
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINATION -->
+            <?php
+            $itemsPerPage = 5;
+            $totalItems = count($orders);
+            $totalPages = ceil($totalItems / $itemsPerPage);
+            $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+
+            if ($currentPage > $totalPages) {
+                $currentPage = $totalPages;
+            }
+
+            $startIndex = ($currentPage - 1) * $itemsPerPage;
+            $paginatedOrders = array_slice($orders, $startIndex, $itemsPerPage);
+
+            $queryString = http_build_query(array_merge($_GET, ['page' => '']));
+            $baseUrl = '/webbanhang/Order/index?' . rtrim($queryString, '&=');
+            ?>
+
+            <?php if ($totalPages > 1): ?>
+                <div class="pagination-container">
+                    <span class="pagination-info">
+                        Hiển thị <?= $startIndex + 1 ?> - <?= min($startIndex + $itemsPerPage, $totalItems) ?> / <?= $totalItems ?> đơn
+                    </span>
+
+                    <ul class="pagination-list">
+                        <!-- Previous Button -->
+                        <li class="pagination-item">
+                            <?php if ($currentPage > 1): ?>
+                                <a href="<?= $baseUrl ?>&page=<?= $currentPage - 1 ?>" class="pagination-link">
+                                    ← Trước
+                                </a>
+                            <?php else: ?>
+                                <span class="pagination-link disabled">← Trước</span>
+                            <?php endif; ?>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <?php
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($totalPages, $currentPage + 2);
+
+                        if ($startPage > 1): ?>
+                            <li class="pagination-item">
+                                <a href="<?= $baseUrl ?>&page=1" class="pagination-link">1</a>
+                            </li>
+                            <?php if ($startPage > 2): ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">...</span>
+                                </li>
+                            <?php endif;
+                        endif;
+
+                        for ($i = $startPage; $i <= $endPage; $i++): ?>
+                            <li class="pagination-item">
+                                <?php if ($i === $currentPage): ?>
+                                    <span class="pagination-link active"><?= $i ?></span>
+                                <?php else: ?>
+                                    <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="pagination-link"><?= $i ?></a>
+                                <?php endif; ?>
+                            </li>
+                        <?php endfor;
+
+                        if ($endPage < $totalPages): ?>
+                            <?php if ($endPage < $totalPages - 1): ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">...</span>
+                                </li>
+                            <?php endif; ?>
+                            <li class="pagination-item">
+                                <a href="<?= $baseUrl ?>&page=<?= $totalPages ?>" class="pagination-link"><?= $totalPages ?></a>
+                            </li>
+                        <?php endif; ?>
+
+                        <!-- Next Button -->
+                        <li class="pagination-item">
+                            <?php if ($currentPage < $totalPages): ?>
+                                <a href="<?= $baseUrl ?>&page=<?= $currentPage + 1 ?>" class="pagination-link">
+                                    Sau →
+                                </a>
+                            <?php else: ?>
+                                <span class="pagination-link disabled">Sau →</span>
+                            <?php endif; ?>
+                        </li>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
+        <?php endif; ?>
+
+    </div>
+</div>
+
+<?php include 'app/views/shares/footer.php'; ?>
 
     /* Tiêu đề */
     .product-title {

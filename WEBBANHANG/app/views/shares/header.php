@@ -11,109 +11,110 @@ SessionHelper::start();
     <title>Shop Ngường Giủ</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
-        /* HEADER - chủ đề shop giường ngủ */
+        /* COLOR SCHEME */
+        :root {
+            --primary-color: #B8936A;
+            --secondary-color: #1a1f36;
+            --accent-color: #D4AF37;
+            --light-bg: #F8F7F3;
+            --text-dark: #2C3E50;
+            --text-light: #6B7280;
+            --border-color: #E8E6E3;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
 
+        * {
+            color-scheme: light;
+        }
+
+        /* HEADER */
         .main-header {
-            background: rgba(44, 62, 80, 0.97);
-            /* xanh navy nhạt */
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid #dbeafe;
-            /* xanh nhạt */
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         /* Logo */
-
-        .logo-blue {
-            color: #2563eb;
-            /* xanh dương nổi bật */
-            font-weight: bold;
+        .logo-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
-        .logo-purple {
-            color: #d32304;
-            /* xám xanh nhạt, tạo cảm giác thư giãn */
-            font-weight: bold;
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary-color);
         }
 
-        /* menu */
+        .logo-text .brand-primary {
+            color: var(--primary-color);
+        }
 
+        /* Navigation */
         .navbar-nav .nav-link {
-            color: #f1f5f9 !important;
-            /* trắng xanh nhạt */
+            color: var(--text-dark) !important;
             font-weight: 500;
             position: relative;
-            transition: 0.3s;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.2rem;
+            border-radius: 4px;
         }
-
-        /* hover */
 
         .navbar-nav .nav-link:hover {
-            color: #facc15 !important;
-            /* vàng nhạt */
+            color: var(--primary-color) !important;
+            background: rgba(184, 147, 106, 0.08);
         }
 
-        /* underline animation */
+        .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+            background: rgba(184, 147, 106, 0.12);
+        }
 
-        .navbar-nav .nav-link::after {
-            content: "";
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #facc15;
-            /* vàng nhạt */
+        .nav-username {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+
+        .nav-logout {
+            color: var(--danger) !important;
+        }
+
+        .navbar-toggler {
+            border-color: var(--border-color);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+            border-color: var(--primary-color);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
             transition: 0.3s;
         }
 
-        /* hover */
-
-        .navbar-nav .nav-link:hover::after {
-            width: 100%;
-        }
-
-        /* active */
-
-        .navbar-nav .nav-link.active::after {
-            width: 100%;
-        }
-
-        /* khi hover menu khác thì ẩn active */
-
-        .navbar-nav:hover .nav-link.active::after {
-            width: 0;
-        }
-
-        /* menu đang active */
-
-        .navbar-nav .nav-link.active {
-            color: #facc15 !important;
-            /* vàng nhạt */
-        }
-
-        .navbar-nav .nav-link.active::after {
-            width: 100%;
-        }
-
-        /* username */
-
-        .nav-username {
-            color: #2563eb !important;
-            /* xanh dương nổi bật */
-            font-weight: bold;
-        }
-
-        /* logout */
-
-        .nav-logout {
-            color: #ef4444 !important;
-            /* đỏ nhạt */
+        a:hover {
+            color: var(--secondary-color);
         }
     </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -122,19 +123,15 @@ SessionHelper::start();
     $current = $_SERVER['REQUEST_URI'];
     ?>
 
-    <nav class="navbar navbar-expand-lg navbar-dark main-header sticky-top">
+    <nav class="navbar navbar-expand-lg main-header sticky-top">
 
         <div class="container">
 
             <!-- Logo -->
 
-            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/webbanhang/">
-
-                <img src="/webbanhang/public/images/logo.png" alt="Logo" style="height:40px; width:auto;">
-
-                <span class="logo-blue">Shop</span>
-                <span class="logo-purple">Ngường Giủ</span>
-
+            <a class="logo-brand" href="/webbanhang/">
+                <i class="bi bi-moon-stars" style="font-size: 24px; color: var(--primary-color);"></i>
+                <span class="logo-text"><span class="brand-primary">Ngường</span> Giủ</span>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -193,7 +190,7 @@ SessionHelper::start();
                             <li class="nav-item">
                                 <a class="nav-link <?= (strpos($current, 'Account/manage') !== false ? 'active' : '') ?>"
                                     href="/webbanhang/Account/manage">
-                                    Quản lý tài khoản
+                                    Tài khoản
                                 </a>
                             </li>
 
@@ -207,14 +204,14 @@ SessionHelper::start();
                             <li class="nav-item">
                                 <a class="nav-link <?= (strpos($current, 'Category') !== false ? 'active' : '') ?>"
                                     href="/webbanhang/Category">
-                                    Quản lý danh mục
+                                    Danh mục
                                 </a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link <?= (strpos($current, 'Order') !== false ? 'active' : '') ?>"
                                     href="/webbanhang/Order">
-                                    Quản lý đơn hàng
+                                    Đơn hàng
                                 </a>
                             </li>
 
@@ -258,4 +255,4 @@ SessionHelper::start();
     </nav>
 
 
-    <div class="container mt-4">
+    <div class="mt-4">

@@ -1,252 +1,377 @@
 <?php include 'app/views/shares/header.php'; ?>
 
 <style>
+    :root {
+        --primary-color: #B8936A;
+        --secondary-color: #1a1f36;
+        --accent-color: #D4AF37;
+        --light-bg: #F8F7F3;
+        --text-dark: #2C3E50;
+        --text-light: #6B7280;
+        --border-color: #E8E6E3;
+        --success: #10B981;
+        --danger: #EF4444;
+    }
+
     body {
-        background: url('/webbanhang/public/images/background/cart-background-4.avif') no-repeat center center fixed;
-        background-size: cover;
-        min-height: 100vh;
+        background: url("/webbanhang/public/images/background/cart-background-3.avif") center/cover no-repeat;
     }
 
-    /* tiêu đề */
-    .product-title {
-        font-size: 42px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #facc15 0%, #fbbf24 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: none;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        position: relative;
-        padding-bottom: 15px;
+    /* PAGE HEADER */
+    .cart-header {
+        padding: 40px 20px 30px 20px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--border-color);
+        background: white;
+        border-radius: 12px;
+
     }
 
-    .product-title::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #facc15, #fbbf24, transparent);
-        border-radius: 2px;
+    .cart-subtitle {
+        color: var(--text-light);
+        margin-top: 8px;
+        font-size: 14px;
     }
 
-    /* Container styling */
-    .cart-container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    .cart-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
     }
 
-    /* Table styling */
+    /* EMPTY STATE */
+    .empty-cart {
+        text-align: center;
+        padding: 80px 40px;
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        color: var(--border-color);
+        margin-bottom: 20px;
+    }
+
+    .empty-text {
+        font-size: 18px;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+    }
+
+    .empty-description {
+        color: var(--text-light);
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .btn-continue-shopping {
+        display: inline-block;
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-continue-shopping:hover {
+        background: var(--secondary-color);
+    }
+
+    /* CART TABLE CONTAINER */
+    .cart-table-container {
+        background: var(--light-bg);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border-color);
+    }
+
+    .cart-table-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* CART TABLE */
     .cart-table {
-        border-collapse: separate;
-        border-spacing: 0;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
     }
 
     .cart-table thead {
-        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        background: var(--secondary-color);
     }
 
     .cart-table thead th {
-        color: #ffffff;
-        font-weight: 600;
+        color: white;
         padding: 16px;
-        text-align: center;
-        font-size: 14px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .cart-table tbody tr {
-        border-bottom: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
+        border-bottom: 1px solid var(--border-color);
+        transition: 0.3s;
     }
 
     .cart-table tbody tr:hover {
-        background-color: #f9fafb;
-        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+        background: var(--light-bg);
     }
 
     .cart-table tbody td {
-        padding: 16px;
+        padding: 18px 16px;
         vertical-align: middle;
-        color: #374151;
     }
 
     .product-image {
-        width: 90px;
-        height: 90px;
-        object-fit: cover;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .product-image:hover {
-        transform: scale(1.05);
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
     }
 
     .product-name {
         font-weight: 600;
-        color: #111827;
-        max-width: 200px;
+        color: var(--text-dark);
+        margin-bottom: 4px;
     }
 
-    /* Price styling */
-    .price-text {
+    .product-sku {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+
+    .price-value {
         font-weight: 700;
-        color: #059669;
+        color: var(--primary-color);
         font-size: 15px;
     }
 
-    /* Quantity input */
     .quantity-input {
         width: 80px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
         text-align: center;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 8px;
         font-weight: 600;
-        transition: all 0.3s ease;
+        transition: 0.3s;
     }
 
     .quantity-input:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(184, 147, 106, 0.1);
     }
 
-    /* Empty state styling */
-    .empty-state {
-        text-align: center;
-        padding: 60px 30px;
+    .subtotal {
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 15px;
     }
 
-    .empty-state-icon {
-        font-size: 80px;
-        margin-bottom: 20px;
-        opacity: 0.6;
+    .action-buttons {
+        display: flex;
+        gap: 8px;
     }
 
-    .empty-state-text {
-        font-size: 18px;
-        color: #6b7280;
-        margin-bottom: 30px;
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
     }
 
-    /* Summary section */
+    .btn-view {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: var(--secondary-color);
+    }
+
+    .btn-remove {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .btn-remove:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    /* CART SUMMARY */
+    .cart-footer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 50px;
+    }
+
     .cart-summary {
-        background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
-        border-radius: 16px;
-        padding: 24px;
-        margin-top: 30px;
-        border-left: 4px solid #3b82f6;
+        background: var(--light-bg);
+        border-radius: 12px;
+        padding: 30px;
+    }
+
+    .summary-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 20px;
     }
 
     .summary-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        font-size: 16px;
+        margin-bottom: 12px;
+        font-size: 14px;
     }
 
-    .summary-row.total {
-        border-top: 2px solid #cbd5e1;
-        padding-top: 16px;
-        margin-top: 16px;
+    .summary-label {
+        color: var(--text-light);
     }
 
-    .total-label {
-        font-weight: 700;
-        color: #111827;
-    }
-
-    .total-amount {
-        font-weight: 800;
-        font-size: 24px;
-        background: linear-gradient(135deg, #059669);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Action buttons */
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-    }
-
-    .btn-custom {
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 13px;
+    .summary-value {
         font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
+        color: var(--text-dark);
     }
 
-    .btn-detail {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: white;
+    .summary-divider {
+        border-top: 1px solid var(--border-color);
+        margin: 15px 0;
     }
 
-    .btn-detail:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-delete {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-    }
-
-    .btn-delete:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
-    }
-
-    /* Checkout button */
-    .btn-checkout {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        padding: 14px 40px;
-        border-radius: 10px;
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 20px;
         font-weight: 700;
-        font-size: 16px;
+        color: var(--secondary-color);
+    }
+
+    .summary-total-amount {
+        color: var(--primary-color);
+    }
+
+    .checkout-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-checkout {
+        background: var(--primary-color);
+        color: white;
+        padding: 14px 24px;
         border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 15px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: 0.3s;
         text-decoration: none;
-        display: inline-block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
 
     .btn-checkout:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+        background: var(--secondary-color);
+        transform: translateY(-2px);
     }
 
-    .btn-checkout:active {
-        transform: translateY(-1px);
+    .btn-back {
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--border-color);
+        padding: 12px 24px;
     }
 
-    /* Responsive */
+    .btn-back:hover {
+        border-color: var(--primary-color);
+        background: rgba(184, 147, 106, 0.05);
+    }
+
+    /* PAGINATION */
+    .pagination-section {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 40px 0;
+    }
+
+    .page-btn {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-dark);
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .page-btn:hover:not(.disabled) {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .page-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .page-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 1024px) {
+        .cart-footer {
+            grid-template-columns: 1fr;
+        }
+    }
+
     @media (max-width: 768px) {
-        .cart-container {
-            padding: 20px;
+        .cart-table-container {
+            padding: 15px;
         }
 
-        .cart-table thead th {
-            padding: 12px 8px;
-            font-size: 12px;
+        .cart-table-title {
+            font-size: 16px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+
+        .cart-table {
+            font-size: 13px;
         }
 
         .cart-table tbody td {
@@ -257,299 +382,224 @@
             width: 70px;
             height: 70px;
         }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-custom {
-            width: 100%;
-        }
-
-        .summary-row {
-            font-size: 14px;
-        }
-
-        .total-amount {
-            font-size: 20px;
-        }
-    }
-
-    /* phân trang */
-    .pagination-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 40px;
-    }
-
-    .page-btn {
-        padding: 8px 16px;
-        border-radius: 8px;
-        border: 1px solid #2563eb;
-        background: white;
-        color: #2563eb;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .page-btn:hover {
-        background: #2563eb;
-        color: white;
-    }
-
-    .page-btn.active {
-        background: #2563eb;
-        color: white;
-    }
-
-    .page-btn.disabled {
-        background: #e5e7eb;
-        color: #9ca3af;
-        border: none;
-        cursor: not-allowed;
     }
 </style>
 
-<div class="cart-container">
-    <h1 class="product-title mb-6">🛍️ Giỏ Hàng Của Bạn</h1>
+<div class="container py-4">
+
+    <!-- HEADER -->
+    <div class="cart-header">
+        <h1 class="cart-title">Giỏ hàng của bạn</h1>
+        <p class="cart-subtitle">Kiểm tra và hoàn tất đơn hàng của bạn</p>
+    </div>
 
     <?php if (empty($cart)): ?>
-        <div class="empty-state">
-            <div class="empty-state-icon">🛒</div>
-            <p class="empty-state-text">Giỏ hàng của bạn đang trống</p>
-            <a href="/webbanhang/product/" class="btn-checkout" style="background: linear-gradient(135deg, #6b7280, #4b5563);">
-                Tiếp tục mua sắm
+        <!-- EMPTY STATE -->
+        <div class="empty-cart" style="background: white; border-radius: 12px; margin-bottom: 30px;">
+            <div class="empty-icon"><i class="bi bi-cart-x"></i></div>
+            <h2 class="empty-text">Giỏ hàng trống</h2>
+            <p class="empty-description">Bạn chưa thêm sản phẩm nào vào giỏ hàng</p>
+            <a href="/webbanhang/Product/index" class="btn-continue-shopping">
+                <i class="bi bi-shop"></i> Tiếp tục mua sắm
             </a>
         </div>
-    <?php else: ?>
 
-        <div class="overflow-x-auto">
-            <table class="cart-table w-full">
+    <?php else: ?>
+        <!-- CART TABLE CONTAINER -->
+        <div class="cart-table-container">
+            <h2 class="cart-table-title"><i class="bi bi-bag-check"></i> Chi tiết sản phẩm</h2>
+
+            <!-- CART TABLE -->
+            <table class="cart-table">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">Hình</th>
-                        <th style="width: 25%;">Tên Sản Phẩm</th>
+                        <th style="width: 12%;">Hình ảnh</th>
+                        <th style="width: 28%;">Sản phẩm</th>
                         <th style="width: 15%;">Giá</th>
-                        <th style="width: 12%;">Số Lượng</th>
-                        <th style="width: 15%;">Thành Tiền</th>
-                        <th style="width: 23%;">Hành Động</th>
+                        <th style="width: 15%;">Số lượng</th>
+                        <th style="width: 18%;">Thành tiền</th>
+                        <th style="width: 12%;">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
-
                     <?php
                     $total = 0;
                     foreach ($cart as $item):
                         $subtotal = $item['price'] * $item['quantity'];
                         $total += $subtotal;
                         ?>
-
                         <tr data-id="<?= $item['id'] ?>" class="cart-item">
                             <td class="text-center">
                                 <?php if (!empty($item['image'])): ?>
-                                    <img src="data:image/jpeg;base64,<?= base64_encode($item['image']) ?>"
-                                        class="product-image">
+                                    <img src="data:image/jpeg;base64,<?= base64_encode($item['image']) ?>" class="product-image"
+                                        alt="<?= htmlspecialchars($item['name']) ?>">
                                 <?php else: ?>
-                                    <img src="/webbanhang/public/images/error/bed-error-image.jpg" class="product-image">
+                                    <img src="/webbanhang/public/images/error/bed-error-image.jpg" class="product-image"
+                                        alt="No image">
                                 <?php endif; ?>
                             </td>
 
                             <td>
-                                <div class="product-name"><?= $item['name'] ?></div>
+                                <div class="product-name"><?= htmlspecialchars($item['name']) ?></div>
+                                <div class="product-sku">SKU: #<?= $item['id'] ?></div>
                             </td>
 
-                            <td class="text-center">
-                                <span class="price-text" data-price="<?= $item['price'] ?>">
-                                    <span class="price-number"><?= number_format($item['price'], 0, ',', '.') ?></span> VNĐ
+                            <td>
+                                <span class="price-value" data-price="<?= $item['price'] ?>">
+                                    <?= number_format($item['price'], 0, ',', '.') ?> đ
                                 </span>
                             </td>
 
                             <td class="text-center">
-                                <input type="number" value="<?= $item['quantity'] ?>" min="1"
-                                    class="quantity-input">
+                                <input type="number" value="<?= $item['quantity'] ?>" min="1" class="quantity-input">
                             </td>
 
-                            <td class="text-center">
-                                <span class="subtotal price-text">
-                                    <span class="subtotal-number"><?= number_format($subtotal, 0, ',', '.') ?></span> VNĐ
+                            <td>
+                                <span class="subtotal">
+                                    <span class="subtotal-number"><?= number_format($subtotal, 0, ',', '.') ?></span> đ
                                 </span>
                             </td>
 
                             <td>
                                 <div class="action-buttons">
-                                    <a href="/webbanhang/Cart/show/<?= $item['id'] ?>" class="btn-custom btn-detail">
-                                        Chi tiết
+                                    <a href="/webbanhang/Cart/show/<?= $item['id'] ?>" class="btn-action btn-view"
+                                        title="Xem chi tiết">
+                                        <i class="bi bi-eye"></i>
                                     </a>
-
-                                    <a href="/webbanhang/Cart/remove/<?= $item['id'] ?>" class="btn-custom btn-delete"
-                                        onclick="return confirm('Xóa sản phẩm này?')">
-                                        Xóa
+                                    <a href="/webbanhang/Cart/remove/<?= $item['id'] ?>" class="btn-action btn-remove"
+                                        onclick="return confirm('Xóa sản phẩm này?')" title="Xóa">
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
-
                     <?php endforeach; ?>
-
                 </tbody>
             </table>
         </div>
 
-        <!-- phân trang -->
-        <div class="d-flex justify-content-center mt-4">
-            <ul class="pagination" id="pagination"></ul>
-        </div>
+        <!-- PAGINATION -->
+        <div class="pagination-section" id="paginationContainer"></div>
 
-        <!-- Cart Summary -->
-        <div class="cart-summary">
-            <div class="summary-row total">
-                <span class="total-label">Tổng Tiền:</span>
-                <span class="total-amount" id="totalAmount">
-                    <span class="total-number"><?= number_format($total, 0, ',', '.') ?></span> VNĐ
-                </span>
-                
+        <!-- FOOTER -->
+        <div class="cart-footer">
+            <div></div>
+
+            <div class="cart-summary">
+                <h3 class="summary-title">Tóm tắt đơn hàng</h3>
+
+                <div class="summary-row">
+                    <span class="summary-label">Tạm tính:</span>
+                    <span class="summary-value subtotal-amount"><?= number_format($total, 0, ',', '.') ?> đ</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Phí vận chuyển:</span>
+                    <span class="summary-value">Miễn phí</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total">
+                    <span>Tổng cộng:</span>
+                    <span class="summary-total-amount" id="totalAmount"><?= number_format($total, 0, ',', '.') ?> đ</span>
+                </div>
+
+                <div class="checkout-buttons" style="margin-top: 25px;">
+                    <a href="/webbanhang/Order/checkout" class="btn-checkout">
+                        <i class="bi bi-credit-card"></i> Tiến hành thanh toán
+                    </a>
+                    <a href="/webbanhang/Product/index" class="btn-back">
+                        <i class="bi bi-arrow-left"></i> Tiếp tục mua sắm
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <!-- Checkout Button -->
-        <div class="text-end mt-10">
-            <a href="/webbanhang/Order/checkout" class="btn-checkout">
-                ✓ Thanh Toán Ngay
-            </a>
         </div>
 
     <?php endif; ?>
 
 </div>
 
-<!-- JS xử lý thay đổi số lượng -->
+<!-- SCRIPTS -->
 <script>
-    document.querySelectorAll(".quantity-input").forEach(input => {
-        input.addEventListener("change", function () {
-            const row = this.closest("tr");
-            const productId = row.getAttribute("data-id");
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function () {
+            const row = this.closest('tr');
+            const productId = row.dataset.id;
             const quantity = this.value;
-            const price = parseInt(row.querySelector(".price-text").dataset.price);
+            const price = parseInt(row.querySelector('.price-value').dataset.price);
 
-            // Cập nhật thành tiền frontend
-            const subtotalCell = row.querySelector(".subtotal-number");
-            const newSubtotal = price * quantity;
-            subtotalCell.innerText = newSubtotal.toLocaleString('vi-VN');
+            // Update subtotal
+            const subtotal = price * quantity;
+            row.querySelector('.subtotal-number').innerText = subtotal.toLocaleString('vi-VN');
 
-            // Cập nhật tổng tiền
-            let total = 0;
-            document.querySelectorAll(".subtotal-number").forEach(cell => {
-                total += parseInt(cell.innerText.replace(/\D/g, ""));
-            });
+            // Update total
+            updateTotal();
 
-            document.getElementById("totalAmount").querySelector(".total-number").innerText =
-                total.toLocaleString('vi-VN');
-
-            // Gửi AJAX cập nhật session
-            fetch("/webbanhang/Cart/update", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: "id=" + productId + "&quantity=" + quantity
+            // Send to server
+            fetch('/webbanhang/Cart/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${productId}&quantity=${quantity}`
             });
         });
     });
 
-    // xử lý phân trang
-    const cartItems = document.querySelectorAll(".cart-item");
-    const pagination = document.getElementById("pagination");
-
+    const cartItems = document.querySelectorAll('.cart-item');
     let currentPage = 1;
     const itemsPerPage = 5;
 
-    function showPage(page) {
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.subtotal-number').forEach(el => {
+            total += parseInt(el.innerText.replace(/\D/g, ''));
         });
+        document.getElementById('totalAmount').innerText = total.toLocaleString('vi-VN') + ' đ';
+        document.querySelector('.subtotal-amount').innerText = total.toLocaleString('vi-VN') + ' đ';
+    }
 
+    function showPage(page) {
         currentPage = page;
-
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
 
         cartItems.forEach((item, i) => {
-            item.style.display = (i >= start && i < end) ? "table-row" : "none";
+            item.style.display = (i >= start && i < end) ? 'table-row' : 'none';
         });
 
-        createPagination(cartItems.length);
-
-        // cập nhật tổng tiền sau khi phân trang
-        updateTotalAmount();
+        createPagination();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function createPagination(totalItems) {
-
-        pagination.innerHTML = "";
-
-        const pageCount = Math.ceil(totalItems / itemsPerPage);
+    function createPagination() {
+        const pageCount = Math.ceil(cartItems.length / itemsPerPage);
+        const container = document.getElementById('paginationContainer');
+        container.innerHTML = '';
 
         if (pageCount <= 1) return;
 
-        const container = document.createElement("div");
-        container.className = "pagination-container";
-
-        // nút previous
-        const prev = document.createElement("button");
-        prev.innerText = "« Trước";
-        prev.className = "page-btn" + (currentPage === 1 ? " disabled" : "");
-        prev.onclick = () => {
-            if (currentPage > 1) showPage(currentPage - 1);
-        };
+        const prev = document.createElement('button');
+        prev.innerText = '‹ Trước';
+        prev.className = 'page-btn' + (currentPage === 1 ? ' disabled' : '');
+        prev.onclick = () => { if (currentPage > 1) showPage(currentPage - 1); };
         container.appendChild(prev);
 
-        // các số trang
         for (let i = 1; i <= pageCount; i++) {
-
-            const btn = document.createElement("button");
-
+            const btn = document.createElement('button');
             btn.innerText = i;
-
-            btn.className = "page-btn" + (i === currentPage ? " active" : "");
-
+            btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
             btn.onclick = () => showPage(i);
-
             container.appendChild(btn);
         }
 
-        // nút next
-        const next = document.createElement("button");
-
-        next.innerText = "Sau »";
-
-        next.className = "page-btn" + (currentPage === pageCount ? " disabled" : "");
-
-        next.onclick = () => {
-            if (currentPage < pageCount) showPage(currentPage + 1);
-        };
-
+        const next = document.createElement('button');
+        next.innerText = 'Sau ›';
+        next.className = 'page-btn' + (currentPage === pageCount ? ' disabled' : '');
+        next.onclick = () => { if (currentPage < pageCount) showPage(currentPage + 1); };
         container.appendChild(next);
-
-        pagination.appendChild(container);
     }
 
-    function updateTotalAmount() {
-        let total = 0;
-        document.querySelectorAll(".subtotal-number").forEach(cell => {
-            total += parseInt(cell.innerText.replace(/\D/g, ""));
-        });
-        document.getElementById("totalAmount").querySelector(".total-number").innerText = total.toLocaleString('vi-VN');
-    }
-
-    // Khởi tạo phân trang
-    if (cartItems.length > 0) {
-        showPage(1);
-    }
+    if (cartItems.length > 0) showPage(1);
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>

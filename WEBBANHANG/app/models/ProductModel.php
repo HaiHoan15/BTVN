@@ -12,18 +12,19 @@ class ProductModel
 
     public function getAllProducts()
     {
-        $query = "SELECT p.*, c.name AS category_name
+        $query = "SELECT p.id, p.name, p.material, p.size, p.color, p.price, p.description, p.category_id, c.name AS category_name
           FROM product p
           LEFT JOIN category c ON p.category_id = c.id
           ORDER BY p.id DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+        // return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getProductById($id)
     {
-        $query = "SELECT p.*, c.name AS category_name
+        $query = "SELECT p.id, p.name, p.material, p.size, p.color, p.price, p.description, p.category_id, c.name AS category_name
           FROM product p
           LEFT JOIN category c ON p.category_id = c.id
           WHERE p.id = :id";

@@ -2,20 +2,48 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <style>
-    /* FOOTER - chủ đề shop giường ngủ */
+    /* FOOTER */
+    :root {
+        --primary-color: #B8936A;
+        --secondary-color: #1a1f36;
+        --accent-color: #D4AF37;
+        --light-bg: #F8F7F3;
+        --text-dark: #2C3E50;
+        --text-light: #6B7280;
+        --border-color: #E8E6E3;
+    }
 
     .footer-shop {
-        background: #22304a; /* xanh navy đậm */
-        color: #f1f5f9;
-        width: 100vw;
-        margin-left: 50%;
-        transform: translateX(-50%);
+        background: var(--secondary-color);
+        color: #F3F4F6;
+        margin-top: 60px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .footer-shop a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .footer-shop a:hover {
+        color: var(--accent-color);
+        text-decoration: underline;
     }
 
     .footer-title {
-        color: #facc15; /* vàng nhạt */
-        margin-bottom: 15px;
-        font-weight: 600;
+        color: var(--accent-color);
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 18px;
+    }
+
+    .footer-section p {
+        font-size: 14px;
+        line-height: 1.8;
+        color: #D1D5DB;
     }
 
     .footer-links {
@@ -24,122 +52,147 @@
     }
 
     .footer-links li {
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .footer-links a {
-        color: #cbd5e1; /* xám xanh nhạt */
-        text-decoration: none;
+        color: #D1D5DB;
+        font-size: 14px;
         transition: 0.3s;
     }
 
     .footer-links a:hover {
-        color: #facc15;
+        color: var(--accent-color);
+        padding-left: 5px;
     }
 
-    /* social icons */
+    .social-icons {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+    }
 
     .social-icons a {
-        color: #60a5fa; /* xanh dương nhạt */
-        font-size: 22px;
-        margin-right: 12px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(184, 147, 106, 0.15);
+        border-radius: 50%;
+        color: var(--primary-color);
+        font-size: 18px;
         transition: 0.3s;
     }
 
     .social-icons a:hover {
-        color: #facc15;
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
     }
 
-    .footer-line {
-        border-color: #334155; /* xanh xám đậm */
+    .footer-contact {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 14px;
     }
 
-    .footer-contact-icon {
-        font-size: 1.1em;
-        margin-right: 6px;
-        vertical-align: middle;
+    .footer-contact i {
+        color: var(--primary-color);
+        margin-top: 2px;
     }
 
-    @media (min-width: 1200px) {
-        .footer-shop .container {
-            max-width: 100%;
-            padding-left: 48px;
-            padding-right: 48px;
+    .footer-bottom {
+        border-top: 1px solid rgba(184, 147, 106, 0.2);
+        padding-top: 20px;
+        margin-top: 30px;
+        text-align: center;
+        color: #9CA3AF;
+        font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+        .footer-section {
+            margin-bottom: 30px;
         }
     }
 </style>
 
-
-<footer class="footer-shop mt-5">
+<footer class="footer-shop">
 
     <div class="container py-5">
 
         <div class="row">
 
-            <!-- Logo + giới thiệu -->
-
-            <div class="col-md-4 mb-4">
+            <!-- Logo + Giới thiệu -->
+            <div class="col-md-4 footer-section">
                 <div class="d-flex align-items-center mb-3">
-                    <img src="/webbanhang/public/images/logo.png" alt="logo" style="height:40px;width:auto;margin-right:10px;">
-                    <h5 class="mb-0 fw-bold" style="color:#facc15;">
-                        Shop Ngường Giủ
-                    </h5>
+                    <i class="bi bi-moon-stars" style="font-size: 24px; color: var(--primary-color); margin-right: 10px;"></i>
+                    <h5 class="mb-0" style="color: var(--accent-color); font-weight: 700;">Ngường Giủ</h5>
                 </div>
-                <p style="color:#f1f5f9;">
-                    Chuyên cung cấp các loại giường ngủ chất lượng cao,<br>
-                    thiết kế hiện đại, mang lại giấc ngủ thoải mái<br>
-                    và không gian phòng ngủ sang trọng.
+                <p>
+                    Chuyên cung cấp các loại giường ngủ chất lượng cao, thiết kế hiện đại và sang trọng, mang lại giấc ngủ thoải mái cho gia đình bạn.
                 </p>
             </div>
 
-
-            <!-- Các mục -->
-
-            <div class="col-md-3 mb-4">
+            <!-- Danh mục -->
+            <div class="col-md-2 footer-section">
                 <h6 class="footer-title">Danh mục</h6>
                 <ul class="footer-links">
-                    <li><a href="#">Trang chủ</a></li>
-                    <li><a href="#">Sản phẩm</a></li>
-                    <li><a href="#">Khuyến mãi</a></li>
+                    <li><a href="/webbanhang/">Trang chủ</a></li>
+                    <li><a href="/webbanhang/Product/index">Sản phẩm</a></li>
+                    <li><a href="/webbanhang/Product/index">Khuyến mãi</a></li>
                     <li><a href="#">Tin tức</a></li>
+                </ul>
+            </div>
+
+            <!-- Hỗ trợ -->
+            <div class="col-md-2 footer-section">
+                <h6 class="footer-title">Hỗ trợ</h6>
+                <ul class="footer-links">
+                    <li><a href="#">Hướng dẫn mua</a></li>
+                    <li><a href="#">Chính sách</a></li>
+                    <li><a href="#">Bảo hành</a></li>
                     <li><a href="#">Liên hệ</a></li>
                 </ul>
             </div>
 
-
-            <!-- Mạng xã hội -->
-
-            <div class="col-md-2 mb-4">
-                <h6 class="footer-title">Kết nối</h6>
-                <div class="social-icons">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-chat-dots"></i></a>
-                    <a href="#"><i class="bi bi-youtube"></i></a>
-                </div>
-            </div>
-
-
             <!-- Liên hệ -->
-
-            <div class="col-md-3 mb-4">
+            <div class="col-md-4 footer-section">
                 <h6 class="footer-title">Liên hệ</h6>
-                <p class="small" style="color:#60a5fa;"><span class="footer-contact-icon">📍</span> Số 69 - phường 69, Quận 69, TP.HCM</p>
-                <p class="small" style="color:#a5b4fc;"><span class="footer-contact-icon">✉</span> Shopnguonggiu@gmail.com</p>
-                <p class="small" style="color:#f472b6;"><span class="footer-contact-icon">☎</span> 696-969-69**</p>
+                <div class="footer-contact">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Số 69, Phường 69, Quận 69, TP.HCM</span>
+                </div>
+                <div class="footer-contact">
+                    <i class="bi bi-envelope"></i>
+                    <span><a href="mailto:shopnguonggiu@gmail.com">shopnguonggiu@gmail.com</a></span>
+                </div>
+                <div class="footer-contact">
+                    <i class="bi bi-telephone"></i>
+                    <span><a href="tel:0969696969">0969 696 969</a></span>
+                </div>
+                <div class="mt-3">
+                    <h6 class="footer-title" style="color: var(--primary-color);">Kết nối với chúng tôi</h6>
+                    <div class="social-icons">
+                        <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
             </div>
 
         </div>
 
-        <hr class="footer-line">
-
-        <p class="text-center small mb-0" style="color:#a3a3a3;">
-            © 2026 Shop Ngường Giủ. All rights reserved.
-        </p>
+        <div class="footer-bottom">
+            © 2026 Shop Ngường Giủ. All rights reserved. | Designed with <i class="bi bi-heart-fill" style="color: var(--primary-color); font-size: 11px;"></i> for your comfort
+        </div>
 
     </div>
 
 </footer>
-
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

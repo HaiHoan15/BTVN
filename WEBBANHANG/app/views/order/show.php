@@ -1,11 +1,456 @@
 <?php include 'app/views/shares/header.php'; ?>
 
 <style>
-    body {
-        background: url('/webbanhang/public/images/background/payment-background.avif') no-repeat center center fixed;
-        background-size: cover;
-        min-height: 100vh;
+    :root {
+        --primary-color: #B8936A;
+        --secondary-color: #1a1f36;
+        --accent-color: #D4AF37;
+        --light-bg: #F8F7F3;
+        --text-dark: #2C3E50;
+        --text-light: #6B7280;
+        --border-color: #E8E6E3;
     }
+
+    body {
+        background-color: white;
+    }
+
+    .detail-container {
+        padding: 40px 0;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* INFO SECTION */
+    .info-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 35px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .info-card {
+        background: var(--light-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(184, 147, 106, 0.1);
+    }
+
+    .info-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .info-value {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .info-value.status {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: rgba(212, 175, 55, 0.15);
+        color: var(--accent-color);
+    }
+
+    .status-confirmed {
+        background: rgba(184, 147, 106, 0.15);
+        color: var(--primary-color);
+    }
+
+    .status-shipping {
+        background: rgba(26, 31, 54, 0.1);
+        color: var(--secondary-color);
+    }
+
+    .status-completed {
+        background: rgba(76, 175, 80, 0.15);
+        color: #4CAF50;
+    }
+
+    .status-cancelled {
+        background: rgba(244, 67, 54, 0.15);
+        color: #F44336;
+    }
+
+    /* TABLE SECTION */
+    .table-section {
+        margin-bottom: 30px;
+    }
+
+    .table-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    /* TABLE WRAPPER */
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+
+    /* TABLE STYLING */
+    .detail-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .detail-table thead {
+        background: var(--secondary-color);
+    }
+
+    .detail-table thead th {
+        color: white;
+        font-weight: 700;
+        padding: 18px 16px;
+        text-align: center;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-table thead th:first-child {
+        text-align: left;
+    }
+
+    .detail-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s;
+    }
+
+    .detail-table tbody tr:hover {
+        background-color: var(--light-bg);
+    }
+
+    .detail-table tbody td {
+        padding: 18px 16px;
+        color: var(--text-dark);
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .detail-table tbody td:first-child {
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .detail-table tbody td {
+        text-align: center;
+    }
+
+    .detail-table tbody td:last-child {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    /* TOTAL SUMMARY */
+    .total-summary {
+        background: var(--light-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 30px 0;
+        text-align: right;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 12px 0;
+        font-size: 15px;
+        gap: 20px;
+    }
+
+    .summary-row.total {
+        border-top: 2px solid var(--border-color);
+        padding-top: 16px;
+        margin-top: 16px;
+    }
+
+    .summary-label {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .summary-amount {
+        font-weight: 700;
+        color: var(--text-dark);
+        min-width: 180px;
+    }
+
+    .summary-amount.total-amount {
+        font-size: 24px;
+        color: var(--primary-color);
+    }
+
+    /* BUTTON */
+    .btn-back {
+        background: white;
+        color: var(--primary-color);
+        padding: 12px 32px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .btn-back:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 24px;
+        }
+
+        .info-section {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .detail-table thead th {
+            padding: 12px 8px;
+            font-size: 11px;
+        }
+
+        .detail-table tbody td {
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
+        .summary-row {
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .summary-amount {
+            min-width: auto;
+        }
+
+        .total-summary {
+            text-align: left;
+        }
+
+        .summary-row {
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 20px;
+        }
+
+        .info-card {
+            padding: 16px;
+        }
+
+        .info-value {
+            font-size: 14px;
+        }
+
+        .detail-table thead th {
+            font-size: 10px;
+            padding: 10px 6px;
+        }
+
+        .detail-table tbody td {
+            padding: 10px 6px;
+            font-size: 12px;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="detail-container">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h1 class="page-title"><i class="bi bi-receipt"></i> Chi tiết đơn hàng #<?= $order->id ?></h1>
+        </div>
+
+        <!-- ORDER INFO SECTION -->
+        <div class="info-section">
+            <div class="info-card">
+                <span class="info-label">Khách hàng</span>
+                <span class="info-value"><?= htmlspecialchars($order->customer_name) ?></span>
+            </div>
+
+            <div class="info-card">
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value"><?= htmlspecialchars($order->phone) ?></span>
+            </div>
+
+            <div class="info-card">
+                <span class="info-label">Địa chỉ</span>
+                <span class="info-value"><?= htmlspecialchars($order->address) ?></span>
+            </div>
+
+            <div class="info-card">
+                <span class="info-label">Phương thức thanh toán</span>
+                <span class="info-value">
+                    <?php
+                    if ($order->payment_method === 'cod') {
+                        echo 'COD (Trực tiếp)';
+                    } elseif ($order->payment_method === 'momo') {
+                        echo 'MoMo (Online)';
+                    } else {
+                        echo ucfirst($order->payment_method);
+                    }
+                    ?>
+                </span>
+            </div>
+
+            <div class="info-card">
+                <span class="info-label">Trạng thái</span>
+                <span class="info-value status <?php
+                    echo match($order->status) {
+                        'pending' => 'status-pending',
+                        'confirmed' => 'status-confirmed',
+                        'shipping' => 'status-shipping',
+                        'completed' => 'status-completed',
+                        'cancelled' => 'status-cancelled',
+                        default => ''
+                    };
+                ?>">
+                    <?php
+                    echo match($order->status) {
+                        'pending' => 'Chờ xác nhận',
+                        'confirmed' => 'Đã xác nhận',
+                        'shipping' => 'Đang giao',
+                        'completed' => 'Hoàn thành',
+                        'cancelled' => 'Hủy',
+                        default => ucfirst($order->status)
+                    };
+                    ?>
+                </span>
+            </div>
+
+            <div class="info-card">
+                <span class="info-label">Ngày tạo</span>
+                <span class="info-value"><?= date('d/m/Y H:i', strtotime($order->created_at)) ?></span>
+            </div>
+        </div>
+
+        <!-- PRODUCTS TABLE -->
+        <div class="table-section">
+            <div class="table-title"><i class="bi bi-box"></i> Chi tiết sản phẩm</div>
+
+            <div class="table-wrapper">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $total = 0;
+                        foreach ($details as $item):
+                            $subtotal = $item->price * $item->quantity;
+                            $total += $subtotal;
+                        ?>
+                            <tr>
+                                <td><?= htmlspecialchars($item->name) ?></td>
+                                <td><?= $item->quantity ?></td>
+                                <td><?= number_format($item->price, 0, ',', '.') ?> đ</td>
+                                <td><?= number_format($subtotal, 0, ',', '.') ?> đ</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TOTAL SUMMARY -->
+        <div class="total-summary">
+            <div class="summary-row total">
+                <span class="summary-label">Tổng cộng:</span>
+                <span class="summary-amount total-amount">
+                    <?= number_format($order->total_amount, 0, ',', '.') ?> đ
+                </span>
+            </div>
+        </div>
+
+        <!-- BACK BUTTON -->
+        <a href="/webbanhang/Order/myOrders" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+
+    </div>
+</div>
+
+<?php include 'app/views/shares/footer.php'; ?>
 
     /* Tiêu đề */
     .page-title {
